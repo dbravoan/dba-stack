@@ -1,0 +1,31 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    paths:
+        - src
+        - app
+        - tests
+
+    # El nivel "max" es el 9. No permite ni un solo 'mixed' sin justificar.
+    level: max
+
+    ignoreErrors:
+        # Errores comunes de tipado en tests que no afectan a la calidad del dominio
+        - '#Method .*::test.* has no return type specified.#'
+
+    # Obliga a definir los tipos de los elementos en arrays y colecciones
+    checkMissingIterableValueType: true
+
+    # Prohíbe el uso de funciones y métodos marcados como @deprecated
+    checkInternalClassCaseSensitivity: true
+    
+    # Análisis profundo de tipos genéricos (crucial para tus Repositorios y Buses)
+    checkGenericClassInNonGenericObjectType: false
+
+    # Detecta código muerto o inalcanzable
+    reportUnmatchedIgnoredErrors: true
+
+    # Configuración específica para Laravel
+    noUnnecessaryCollectionCall: true
+    checkModelProperties: true
