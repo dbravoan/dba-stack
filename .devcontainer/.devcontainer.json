@@ -1,0 +1,23 @@
+{
+    "name": "DBA-Stack Dev Environment",
+    "dockerComposeFile": [
+        "../docker-compose.yml"
+    ],
+    "service": "laravel.test",
+    "workspaceFolder": "/var/www/html",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client",
+                "neilbrayfield.php-unittest",
+                "nunomaduro.phpinsights",
+                "github.copilot",
+                "github.copilot-chat"
+            ]
+        }
+    },
+    "postCreateCommand": "cp .env.example .env && composer install && php artisan key:generate"
+}
