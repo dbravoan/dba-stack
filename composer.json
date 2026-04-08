@@ -9,7 +9,7 @@
         "dbravoan/dba-ddd-skeleton": "^1.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^12.0",
-        "laravel/inertia-laravel": "^2.0",
+        "inertiajs/inertia-laravel": "^2.0",
         "laravel/passport": "^12.0",
         "laravel/tinker": "^2.8",
         "lambdish/phunctional": "^2.1"

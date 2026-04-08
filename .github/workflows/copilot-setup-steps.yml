@@ -48,8 +48,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock', '**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
+
+      - name: Validate Composer Manifest
+        run: composer validate --strict --no-check-publish
 
       - name: Install Composer Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -62,7 +65,11 @@ jobs:
       - name: Install NPM Dependencies
         run: |
           if [ -f package.json ]; then
-            npm ci
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
             npm run build
           else
             echo "No package.json found — frontend not yet initialized"

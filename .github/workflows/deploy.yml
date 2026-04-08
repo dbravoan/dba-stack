@@ -34,7 +34,11 @@ jobs:
             
             # 4. Frontend build + SSR (si el proyecto tiene frontend instalado)
             if [ -f "package.json" ]; then
+              if [ -f "package-lock.json" ]; then
                 npm ci
+              else
+                npm install
+              fi
                 npm run build
                 
                 # Reiniciar SSR server si está configurado

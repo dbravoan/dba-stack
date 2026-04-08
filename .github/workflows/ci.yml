@@ -38,8 +38,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock', '**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
+
+      - name: Validate Composer Manifest
+        run: composer validate --strict --no-check-publish
 
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -73,11 +76,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
 
       - name: Install Frontend Dependencies
         if: hashFiles('package.json') != ''
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build Frontend (TypeScript + Vue + SSR)
         if: hashFiles('package.json') != ''
