@@ -18,9 +18,9 @@
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
+        "larastan/larastan": "^3.0",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
-        "nunomaduro/larastan": "^3.0",
         "phpunit/phpunit": "^11.0"
     },
     "autoload": {
@@ -39,16 +39,16 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php -r \"if (file_exists('artisan')) { passthru('php artisan package:discover --ansi', $exitCode); exit($exitCode); }\""
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+            "@php -r \"if (file_exists('artisan')) { passthru('php artisan vendor:publish --tag=laravel-assets --ansi --force', $exitCode); exit($exitCode); }\""
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
+            "@php -r \"if (file_exists('artisan')) { passthru('php artisan key:generate --ansi', $exitCode); exit($exitCode); }\""
         ],
         "lint": "pint",
         "test": "phpunit",

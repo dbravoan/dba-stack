@@ -1,5 +1,5 @@
 includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/larastan/larastan/extension.neon
 
 parameters:
     paths:
@@ -14,14 +14,8 @@ parameters:
         # Errores comunes de tipado en tests que no afectan a la calidad del dominio
         - '#Method .*::test.* has no return type specified.#'
 
-    # Obliga a definir los tipos de los elementos en arrays y colecciones
-    checkMissingIterableValueType: true
-
     # Prohíbe el uso de funciones y métodos marcados como @deprecated
     checkInternalClassCaseSensitivity: true
-    
-    # Análisis profundo de tipos genéricos (crucial para tus Repositorios y Buses)
-    checkGenericClassInNonGenericObjectType: false
 
     # Detecta código muerto o inalcanzable
     reportUnmatchedIgnoredErrors: true

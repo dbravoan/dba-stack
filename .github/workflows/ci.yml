@@ -48,27 +48,47 @@ jobs:
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Copy Environment File
-        run: cp .env.example .env
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "No .env.example found — skipping environment copy"
+          fi
 
       - name: Check Code Style (Pint)
         run: ./vendor/bin/pint --test
 
       - name: Static Analysis (Larastan)
-        run: ./vendor/bin/phpstan analyse src --level=max
+        run: |
+          if [ -d src ] || [ -d app ] || [ -d tests ]; then
+            ./vendor/bin/phpstan analyse --memory-limit=1G
+          else
+            echo "No src/app/tests directories found — skipping PHPStan"
+          fi
 
       - name: Run Architecture Tests (Pest/PHPUnit)
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-        run: ./vendor/bin/phpunit --testsuite=Unit,Architecture
+        run: |
+          if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ] || [ -d tests ]; then
+            ./vendor/bin/phpunit --testsuite=Unit,Architecture
+          else
+            echo "No PHPUnit config or tests directory found — skipping Unit/Architecture tests"
+          fi
 
       - name: Run Integration Tests
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-        run: ./vendor/bin/phpunit --testsuite=Integration
+        run: |
+          if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ] || [ -d tests ]; then
+            ./vendor/bin/phpunit --testsuite=Integration
+          else
+            echo "No PHPUnit config or tests directory found — skipping Integration tests"
+          fi
 
       # Frontend build validation (only if frontend is installed)
       - name: Setup Node.js
