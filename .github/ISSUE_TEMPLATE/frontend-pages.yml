@@ -1,0 +1,119 @@
+name: "🎨 Frontend: Páginas Vue/Inertia"
+description: "Crear páginas Vue 3 + Inertia.js para un módulo backend existente"
+title: "Frontend: páginas para {Context}/{Module}"
+labels: ["agent:frontend-builder", "copilot-queued"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instrucciones para Copilot
+        - Rama base: `dev`
+        - Agente: `frontend-builder`
+        - El módulo backend DEBE existir antes de crear el frontend
+        - Seguir `.github/instructions/frontend-layer.instructions.md`
+        - `<script setup lang="ts">` en todos los componentes
+
+  - type: input
+    id: context
+    attributes:
+      label: "Bounded Context"
+      description: "Nombre del contexto backend (PascalCase). Ej: Catalog, Identity"
+      placeholder: "Catalog"
+    validations:
+      required: true
+
+  - type: input
+    id: module
+    attributes:
+      label: "Módulo"
+      description: "Nombre del módulo backend (PascalCase). Ej: Product, User"
+      placeholder: "Product"
+    validations:
+      required: true
+
+  - type: textarea
+    id: pages
+    attributes:
+      label: "Páginas a crear"
+      description: "Qué páginas necesita este módulo"
+      placeholder: |
+        - Index.vue: listado con búsqueda, filtros por estado/categoría, paginación
+        - Show.vue: detalle del producto con acciones (publicar, archivar)
+        - Create.vue: formulario de creación con validación
+        - Edit.vue: formulario de edición pre-rellenado
+    validations:
+      required: true
+
+  - type: textarea
+    id: components
+    attributes:
+      label: "Componentes específicos (opcional)"
+      description: "Componentes reutilizables o específicos del módulo"
+      placeholder: |
+        - ProductCard.vue: card para listados con imagen, nombre, precio, estado
+        - ProductStatusBadge.vue: badge de color según estado (draft/published/archived)
+        - ProductFilters.vue: sidebar de filtros
+    validations:
+      required: false
+
+  - type: dropdown
+    id: layout
+    attributes:
+      label: "Layout"
+      description: "Qué layout usan las páginas de este módulo"
+      options:
+        - "AppLayout (autenticado)"
+        - "BackofficeLayout (admin/backoffice)"
+        - "GuestLayout (público)"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: features
+    attributes:
+      label: "Funcionalidades"
+      options:
+        - label: "Búsqueda y filtros con RequestCriteriaBuilder"
+        - label: "Paginación con Inertia Link"
+        - label: "Formularios con useForm() y errores de validación"
+        - label: "Acciones de dominio (publish, archive, etc.)"
+        - label: "Confirmación antes de acciones destructivas"
+        - label: "Toast/notificaciones de éxito/error"
+        - label: "Responsive/mobile-first"
+
+  - type: textarea
+    id: web-controllers
+    attributes:
+      label: "Web Controllers necesarios"
+      description: "Rutas Inertia que necesitan controllers web (además de los API existentes)"
+      placeholder: |
+        - GET  /catalog/products          → Index (listado paginado)
+        - GET  /catalog/products/create   → Create (formulario)
+        - POST /catalog/products          → Store (crear + redirect)
+        - GET  /catalog/products/{id}     → Show (detalle)
+        - GET  /catalog/products/{id}/edit → Edit (formulario con datos)
+        - PUT  /catalog/products/{id}     → Update (actualizar + redirect)
+        - DELETE /catalog/products/{id}   → Destroy (eliminar + redirect)
+    validations:
+      required: true
+
+  - type: input
+    id: dependencies
+    attributes:
+      label: "Dependencias"
+      description: "Issues que deben cerrarse antes (siempre el módulo backend). Ej: #4"
+      placeholder: "#4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: "Fase"
+      options:
+        - "3 — Dependencias cruzadas"
+        - "4 — Integración"
+        - "5 — Refinamiento"
+    validations:
+      required: true

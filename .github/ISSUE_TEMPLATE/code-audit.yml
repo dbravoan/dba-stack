@@ -1,0 +1,62 @@
+name: "🔍 Auditoría de Código"
+description: "Solicitar al code-reviewer una auditoría de arquitectura y calidad"
+title: "Auditar: {alcance}"
+labels: ["agent:code-reviewer", "copilot-queued"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instrucciones para Copilot
+        - Rama base: `dev`
+        - Agente: `code-reviewer`
+        - Output: reporte de hallazgos (NO edita código)
+        - Formato: tabla con Severidad, Archivo, Línea, Descripción, Fix
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: "Alcance de la auditoría"
+      options:
+        - "Módulo específico"
+        - "Todos los módulos"
+        - "Pre-merge (dev → main)"
+    validations:
+      required: true
+
+  - type: input
+    id: module-path
+    attributes:
+      label: "Módulo a auditar (si aplica)"
+      description: "Ruta del módulo. Ej: src/Catalog/Product"
+      placeholder: "src/Catalog/Product"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Verificaciones a realizar"
+      options:
+        - label: "Domain: cero imports de Illuminate, VOs validan en constructor"
+          required: true
+        - label: "Application: handlers final readonly, tags registrados"
+          required: true
+        - label: "Infrastructure: controllers extienden ApiController, repos extienden EloquentRepository"
+          required: true
+        - label: "PHP 8.4: strict_types, Asymmetric Visibility, Property Hooks"
+          required: true
+        - label: "Tests: cobertura de VOs y reglas de negocio"
+        - label: "Cross-module: sin imports entre bounded contexts"
+        - label: "Quality gate: pint, phpstan, phpunit pasarían"
+        - label: "TODOs/FIXMEs sin resolver"
+        - label: "Código comentado que debería eliminarse"
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: "Instrucciones adicionales"
+      description: "Áreas de especial preocupación o reglas de negocio a verificar"
+      placeholder: "Verificar especialmente que las transiciones de estado del módulo Order son correctas"
+    validations:
+      required: false

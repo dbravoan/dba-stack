@@ -1,0 +1,154 @@
+name: "Copilot Auto-Chain: Assign Next Issue"
+
+# Automatically assigns the next ready Issue to Copilot when a PR is merged to dev.
+# This closes the gap between "plan of Issues" and "autonomous execution".
+#
+# How it works:
+# 1. A PR merges to dev (typically created by Copilot from a previous Issue)
+# 2. This workflow checks for Issues labeled `copilot-queued`
+# 3. It verifies all `depends-on:#N` dependencies are closed
+# 4. It assigns the lowest-phase eligible Issue to Copilot
+# 5. The chain continues until all Issues are done
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [dev]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  assign-next-issue:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign next eligible Issue to Copilot
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            console.log('🔗 PR merged to dev. Looking for next Issue to assign...');
+
+            // 1. Get all open Issues labeled copilot-queued, sorted by creation
+            const issues = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              labels: 'copilot-queued',
+              sort: 'created',
+              direction: 'asc',
+              per_page: 100,
+            });
+
+            if (issues.data.length === 0) {
+              console.log('✅ No queued Issues remaining. Orchestration complete!');
+              return;
+            }
+
+            console.log(`📋 Found ${issues.data.length} queued Issue(s)`);
+
+            // 2. Get all closed Issues (to check dependencies)
+            const closedIssues = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'closed',
+              per_page: 100,
+            });
+            const closedNumbers = new Set(closedIssues.data.map(i => i.number));
+
+            // 3. Find the first eligible Issue (all dependencies satisfied)
+            let nextIssue = null;
+            let nextPhase = Infinity;
+
+            for (const issue of issues.data) {
+              // Skip Issues already assigned to Copilot
+              const assignees = issue.assignees.map(a => a.login);
+              if (assignees.includes('copilot-swe-agent[bot]')) {
+                console.log(`⏭️ Issue #${issue.number} already assigned to Copilot, skipping`);
+                continue;
+              }
+
+              // Extract depends-on labels
+              const depLabels = issue.labels
+                .map(l => typeof l === 'string' ? l : l.name)
+                .filter(name => name.startsWith('depends-on:#'));
+
+              const depNumbers = depLabels.map(l => parseInt(l.replace('depends-on:#', ''), 10));
+
+              // Check if all dependencies are closed
+              const allDepsResolved = depNumbers.every(n => closedNumbers.has(n));
+
+              if (!allDepsResolved) {
+                const pending = depNumbers.filter(n => !closedNumbers.has(n));
+                console.log(`⏳ Issue #${issue.number} blocked by: ${pending.map(n => '#' + n).join(', ')}`);
+                continue;
+              }
+
+              // Extract phase number for prioritization
+              const phaseLabel = issue.labels
+                .map(l => typeof l === 'string' ? l : l.name)
+                .find(name => name.startsWith('phase:'));
+              const phase = phaseLabel ? parseInt(phaseLabel.replace('phase:', ''), 10) : 999;
+
+              if (phase < nextPhase) {
+                nextPhase = phase;
+                nextIssue = issue;
+              }
+            }
+
+            if (!nextIssue) {
+              console.log('⏳ All queued Issues have unresolved dependencies. Waiting...');
+              return;
+            }
+
+            console.log(`🚀 Assigning Issue #${nextIssue.number}: "${nextIssue.title}" (phase ${nextPhase})`);
+
+            // 4. Assign Copilot to the Issue
+            try {
+              await github.rest.issues.addAssignees({
+                owner,
+                repo,
+                issue_number: nextIssue.number,
+                assignees: ['copilot-swe-agent[bot]'],
+              });
+            } catch (assignError) {
+              console.log(`⚠️ Could not assign copilot-swe-agent[bot] directly. Adding comment to trigger.`);
+              // Fallback: add a comment mentioning assignment
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: nextIssue.number,
+                body: `🤖 **Auto-chain**: Dependencies resolved. Assigning to Copilot.\n\n@copilot Please implement this Issue following the description. Branch from \`dev\`.`,
+              });
+            }
+
+            // 5. Swap labels: remove copilot-queued, add copilot-working
+            await github.rest.issues.removeLabel({
+              owner,
+              repo,
+              issue_number: nextIssue.number,
+              name: 'copilot-queued',
+            }).catch(() => {}); // ignore if already removed
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: nextIssue.number,
+              labels: ['copilot-working'],
+            });
+
+            // 6. Summary
+            console.log(`✅ Issue #${nextIssue.number} assigned and labeled copilot-working`);
+
+            // 7. Check remaining queue
+            const remaining = issues.data.filter(i => i.number !== nextIssue.number);
+            if (remaining.length > 0) {
+              console.log(`📋 Remaining in queue: ${remaining.map(i => '#' + i.number).join(', ')}`);
+            } else {
+              console.log('🎉 This is the last queued Issue!');
+            }

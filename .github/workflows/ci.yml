@@ -2,9 +2,9 @@ name: CI Quality Assurance
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, dev ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, dev ]
 
 jobs:
   tests-and-quality:
@@ -66,3 +66,19 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
         run: ./vendor/bin/phpunit --testsuite=Integration
+
+      # Frontend build validation (only if frontend is installed)
+      - name: Setup Node.js
+        if: hashFiles('package.json') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install Frontend Dependencies
+        if: hashFiles('package.json') != ''
+        run: npm ci
+
+      - name: Build Frontend (TypeScript + Vue + SSR)
+        if: hashFiles('package.json') != ''
+        run: npm run build

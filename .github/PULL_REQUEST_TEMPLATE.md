@@ -21,6 +21,14 @@
 - [ ] **Persistence**: Repositories extend `EloquentRepository` and return Domain Entities (not Eloquent Models).
 - [ ] **Validation**: Request validation handled before dispatching the Command.
 
+### 4. Frontend Layer (if applicable)
+- [ ] **Vue Components**: `<script setup lang="ts">` in every `.vue` file.
+- [ ] **TypeScript**: No `any` types. Props typed via `defineProps<T>()`.
+- [ ] **Styling**: Tailwind CSS utilities only — no custom CSS.
+- [ ] **Forms**: Inertia `useForm()` — no axios/fetch.
+- [ ] **Routes**: Ziggy `route()` helper — no hardcoded URLs.
+- [ ] **Build**: `npm run build` compiles without errors.
+
 ## ⚡ PHP 8.4 & Quality Standards
 - [ ] **Strict Typing**: `declare(strict_types=1);` present in all new files.
 - [ ] **Static Analysis**: `phpstan` (Larastan) passed at **Level Max**.

@@ -29,20 +29,39 @@ jobs:
             # 2. Actualizar código (solo de main)
             git pull origin main
             
-            # 3. Instalación limpia de producción
+            # 3. Instalación limpia de producción (PHP)
             composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
             
-            # 4. Migraciones y Caché de Excelencia
+            # 4. Frontend build + SSR (si el proyecto tiene frontend instalado)
+            if [ -f "package.json" ]; then
+                npm ci
+                npm run build
+                
+                # Reiniciar SSR server si está configurado
+                # Usa supervisord o pm2 para gestionar el proceso SSR en producción.
+                # Configuración recomendada en /etc/supervisor/conf.d/inertia-ssr.conf:
+                #   [program:inertia-ssr]
+                #   command=php artisan inertia:start-ssr
+                #   directory=/path/to/project
+                #   autostart=true
+                #   autorestart=true
+                php artisan inertia:stop-ssr 2>/dev/null || true
+                if [ -f "bootstrap/ssr/ssr.js" ]; then
+                    supervisorctl restart inertia-ssr 2>/dev/null || true
+                fi
+            fi
+            
+            # 5. Migraciones y Caché de Excelencia
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan event:cache
             
-            # 5. Reiniciar servicios de aplicación
+            # 6. Reiniciar servicios de aplicación
             php artisan queue:restart
             
-            # 6. Salir de mantenimiento
+            # 7. Salir de mantenimiento
             php artisan up
             
             echo "🚀 Project deployed to Production by Human Supervisor."

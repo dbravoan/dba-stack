@@ -1,0 +1,121 @@
+name: "🏗️ Nuevo Módulo DDD"
+description: "Scaffold y construir un módulo DDD completo con el Cloud Agent"
+title: "Crear módulo {Context}/{Module}"
+labels: ["agent:module-builder", "copilot-queued"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instrucciones para Copilot
+        - Rama base: `dev`
+        - Agente: `module-builder`
+        - Ejecutar quality gate al finalizar
+        - Seguir `.github/AGENT_GUIDELINES.md`
+
+  - type: input
+    id: context
+    attributes:
+      label: "Bounded Context"
+      description: "Nombre del contexto (PascalCase). Ej: Identity, Catalog, Cart, Billing"
+      placeholder: "Catalog"
+    validations:
+      required: true
+
+  - type: input
+    id: module
+    attributes:
+      label: "Módulo"
+      description: "Nombre del módulo/entidad (PascalCase). Ej: User, Product, Order"
+      placeholder: "Product"
+    validations:
+      required: true
+
+  - type: textarea
+    id: entity
+    attributes:
+      label: "Entidad (AggregateRoot)"
+      description: "Atributos como Value Objects con reglas de validación"
+      placeholder: |
+        - ProductId: UUID v4
+        - ProductName: string, 3-255 chars
+        - ProductPrice: float, > 0
+        - ProductStatus: enum (draft, published, archived)
+    validations:
+      required: true
+
+  - type: textarea
+    id: domain-methods
+    attributes:
+      label: "Métodos de dominio"
+      description: "Factory estático y métodos semánticos con reglas de negocio"
+      placeholder: |
+        - Product::create(id, name, price): self — inicia como draft
+        - $product->publish(): void — solo si tiene nombre, precio y stock > 0
+        - $product->archive(): void — estado terminal
+    validations:
+      required: true
+
+  - type: textarea
+    id: business-rules
+    attributes:
+      label: "Reglas de negocio"
+      description: "Invariantes, restricciones y transiciones de estado"
+      placeholder: |
+        - Un producto solo puede publicarse si tiene nombre, precio y descripción
+        - Un producto archivado no puede volver a ningún estado
+        - El precio no puede ser negativo ni cero
+    validations:
+      required: true
+
+  - type: textarea
+    id: endpoints
+    attributes:
+      label: "Endpoints API"
+      description: "Rutas HTTP con método y controlador"
+      placeholder: |
+        - POST   /api/catalog/products          → Create
+        - GET    /api/catalog/products/{id}     → Find
+        - GET    /api/catalog/products          → Search (con filtros)
+        - PUT    /api/catalog/products/{id}     → Update
+        - DELETE /api/catalog/products/{id}     → Delete
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: "Tests requeridos"
+      description: "Tests unitarios y de integración específicos"
+      placeholder: |
+        ### Unit
+        - Validación de cada Value Object (valid e invalid)
+        - Transiciones de estado
+
+        ### Integration
+        - CRUD completo vía endpoints
+    validations:
+      required: true
+
+  - type: input
+    id: dependencies
+    attributes:
+      label: "Dependencias"
+      description: "Issues que deben cerrarse antes. Ej: #2, #3"
+      placeholder: "#2, #3"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: "Fase"
+      description: "Fase del proyecto (para ordenar la ejecución)"
+      options:
+        - "1 — Base (sin dependencias)"
+        - "2 — Dominio principal"
+        - "3 — Dependencias cruzadas"
+        - "4 — Integración"
+        - "5 — Refinamiento"
+    validations:
+      required: true

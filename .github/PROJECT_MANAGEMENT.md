@@ -26,6 +26,7 @@ El agente debe ejecutar el "Triángulo de Excelencia" antes de subir código:
 1.  `./vendor/bin/pint` (Estilo).
 2.  `./vendor/bin/phpstan analyse --level=max` (Tipado).
 3.  `./vendor/bin/phpunit` (Lógica y Arquitectura).
+4.  `npm run build` (Frontend — si existe `package.json`).
 
 ### Paso 3: Pull Request a `dev`
 * El agente abre un PR: **`feature/*` → `dev`**.
@@ -68,6 +69,41 @@ Para una orquestación visual, utiliza un **Automated Project Board** con estas 
 4.  **Review (Dev)**: PRs pendientes de tu revisión en la rama `dev`.
 5.  **Staging (Main)**: Cambios en `dev` listos para ser movidos a `main`.
 6.  **Done**: Tareas desplegadas en producción.
+
+---
+
+## 5. Orquestación Automática con Auto-Chain
+
+DBA-Stack incluye un sistema de orquestación que permite ejecutar un proyecto completo de forma secuencial:
+
+### El Flujo
+1. Usa `/orchestrate-project` con una descripción de tu proyecto.
+2. El `orchestrator` genera un plan (`docs/project-plan.md`) y un script (`create-issues.sh`).
+3. El script crea todas las Issues con labels de dependencia (`phase:N`, `depends-on:#N`).
+4. Asigna la primera Issue a Copilot.
+5. El workflow `copilot-auto-chain.yml` asigna automáticamente la siguiente Issue cuando cada PR se mergea a `dev`.
+
+### Labels de Orquestación
+Las Issues usan estos labels para el flujo automático:
+- **`copilot-queued`**: Issue lista para ser asignada a Copilot.
+- **`phase:1..5`**: Fase de ejecución (bases → dominio → dependencias → integración → auditoría).
+- **`depends-on:#N`**: Dependencia de otra Issue (debe estar cerrada antes).
+- **`agent:{name}`**: Agente especializado (`ddd-architect`, `module-builder`, `frontend-builder`, `code-reviewer`).
+
+Ejecuta `bash .github/scripts/setup-labels.sh` una vez por repositorio para crear estos labels.
+
+---
+
+## 6. Frontend (Vue 3 + Inertia.js)
+
+El proyecto incluye soporte para frontend con Vue 3 + Inertia.js:
+
+- **Agente**: `frontend-builder` construye páginas, componentes y layouts.
+- **Frontend setup**: Se ejecuta una vez por proyecto (instala Breeze + Vue + TypeScript + Tailwind).
+- **Páginas por módulo**: Cada módulo backend puede tener su frontend como una Issue separada.
+- **Web Controllers**: Viven junto a los API controllers en Infrastructure, despachan los mismos Commands/Queries.
+- **SSR**: Server-Side Rendering gestionado por supervisord en producción.
+- **Quality Gate**: `npm run build` se incluye como paso obligatorio del CI/CD.
 
 ---
 

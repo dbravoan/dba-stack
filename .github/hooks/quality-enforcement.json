@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": ".github/hooks/scripts/pint-after-edit.sh",
+        "timeout": 15
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": ".github/hooks/scripts/guard-main-branch.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}

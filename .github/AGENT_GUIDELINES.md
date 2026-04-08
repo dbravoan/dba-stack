@@ -51,3 +51,43 @@ Before submitting a Pull Request:
 - **Submission**: All Pull Requests must target the `dev` branch.
 - **Main Branch**: **NEVER** target `main` or `master`. Direct pushes or PRs to `main` will be automatically rejected.
 - **Deployment**: Deployment to the VPS happens ONLY when the Human Supervisor merges `dev` into `main`.
+
+## 8. FRONTEND LAYER (Vue 3 + Inertia.js)
+The project uses **Vue 3 + Inertia.js** for the frontend, connected to the same DDD backend. Frontend code stays separate from domain logic.
+
+### Standards
+- **`<script setup lang="ts">`** in every `.vue` file — no exceptions.
+- **Composition API only** — never Options API.
+- **TypeScript strict mode** — no `any` types.
+- **Tailwind CSS** — no custom CSS files per component.
+- **Inertia `useForm()`** — never raw `fetch()` or `axios`.
+- **Ziggy `route()`** — never hardcoded URLs.
+
+### File Organization
+```
+resources/js/
+├── Pages/{Context}/{Module}/   # Inertia pages mirroring backend module structure
+├── Components/UI/              # Reusable primitives (Button, Modal, DataTable)
+├── Components/Forms/           # Form components (TextInput, Select)
+├── Composables/                # use* composable functions
+├── Layouts/                    # AppLayout, GuestLayout, BackofficeLayout
+└── types/                      # TypeScript interfaces matching backend entities
+```
+
+### Web Controllers
+Web controllers live alongside API controllers in the module's `Infrastructure/` layer:
+- Dispatch the **same** Commands/Queries as API controllers (no logic duplication).
+- Use `Inertia::render()` to serve Vue pages with typed props.
+- Routes use named conventions: `{context}.{module}.{action}`.
+
+### SSR (Server-Side Rendering)
+- SSR entry point: `resources/js/ssr.ts`
+- Build includes SSR: `npm run build` generates both client and SSR bundles.
+- Production SSR managed via **supervisord** (see `deploy.yml` comments).
+- Quality gate includes `npm run build` — TypeScript and Vue must compile cleanly.
+
+### Frontend Quality Gate
+In addition to the PHP quality gate, the frontend must pass:
+```bash
+npm run build    # TypeScript + Vue compilation — zero errors
+```

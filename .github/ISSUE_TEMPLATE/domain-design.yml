@@ -1,0 +1,71 @@
+name: "🧠 Diseño de Dominio"
+description: "Solicitar al ddd-architect el diseño de un bounded context o modelo de dominio"
+title: "Diseñar dominio: {descripción}"
+labels: ["agent:ddd-architect", "copilot-queued", "phase:1"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instrucciones para Copilot
+        - Rama base: `dev`
+        - Agente: `ddd-architect`
+        - Output: documento de diseño (NO implementación)
+        - Seguir `.github/AGENT_GUIDELINES.md`
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Descripción del proyecto/dominio"
+      description: "Describe el negocio, las entidades principales y las reglas que conoces"
+      placeholder: |
+        Necesito diseñar el dominio para una tienda online con:
+        - Gestión de usuarios con roles
+        - Catálogo de productos con categorías
+        - Carrito de compras
+        - Pedidos y facturación
+    validations:
+      required: true
+
+  - type: textarea
+    id: bounded-contexts
+    attributes:
+      label: "Bounded Contexts (si los conoces)"
+      description: "Si ya tienes claro los contextos, lístalos. Si no, deja que el arquitecto los proponga."
+      placeholder: |
+        1. Identity — Usuarios y autenticación
+        2. Catalog — Productos y categorías
+        3. Cart — Carrito de compras
+        4. Billing — Pedidos y facturación
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: "Restricciones y requisitos especiales"
+      description: "Reglas de negocio conocidas, integraciones externas, requisitos no funcionales"
+      placeholder: |
+        - Los contextos se comunican por ID, nunca por referencia directa
+        - Necesita integración con pasarela de pago (Stripe)
+        - Publicación automática diaria con IA
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: output
+    attributes:
+      label: "Output esperado"
+      description: "Qué debe incluir el documento de diseño"
+      options:
+        - label: "Lista de entidades con atributos (Value Objects)"
+          required: true
+        - label: "Reglas de negocio y transiciones de estado"
+          required: true
+        - label: "Eventos de dominio"
+        - label: "Interfaces de repositorio"
+        - label: "Relaciones entre bounded contexts"
+          required: true
+        - label: "Pseudo-código PHP de entidades principales"
+        - label: "Plan de Issues ordenado por dependencia"
+          required: true

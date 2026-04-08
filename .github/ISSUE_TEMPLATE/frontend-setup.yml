@@ -1,0 +1,110 @@
+name: "⚡ Frontend: Setup inicial"
+description: "Instalar y configurar Vue 3, Inertia.js, TypeScript, Tailwind CSS y Vite"
+title: "Frontend: setup inicial Vue/Inertia/Tailwind"
+labels: ["agent:frontend-builder", "copilot-queued", "phase:1"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instrucciones para Copilot
+        - Rama base: `dev`
+        - Agente: `frontend-builder`
+        - Este Issue se ejecuta UNA SOLA VEZ por proyecto
+        - Si `package.json` ya existe, esta Issue no es necesaria
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Descripción
+        Configurar el stack frontend completo para el proyecto.
+
+        ## Requisitos
+
+        ### 1. Instalar dependencias
+        ```bash
+        # Breeze con Vue + Inertia (scaffold Ziggy, Vite, etc.)
+        composer require laravel/breeze --dev
+        php artisan breeze:install vue --typescript --pest
+        npm install
+        ```
+
+        ### 2. Configurar Tailwind CSS v4
+        - Verificar que `resources/css/app.css` tiene las directivas de Tailwind
+        - Configurar colores y tema del proyecto si es necesario
+
+        ### 3. Estructura base de carpetas
+        ```
+        resources/js/
+        ├── app.ts
+        ├── ssr.ts (opcional)
+        ├── types/
+        │   ├── index.d.ts
+        │   └── global.d.ts
+        ├── Layouts/
+        │   ├── AppLayout.vue
+        │   ├── GuestLayout.vue
+        │   └── BackofficeLayout.vue
+        ├── Components/
+        │   ├── UI/
+        │   │   ├── Button.vue
+        │   │   ├── Modal.vue
+        │   │   ├── DataTable.vue
+        │   │   ├── Pagination.vue
+        │   │   ├── Badge.vue
+        │   │   ├── Alert.vue
+        │   │   └── ConfirmDialog.vue
+        │   └── Forms/
+        │       ├── TextInput.vue
+        │       ├── SelectInput.vue
+        │       ├── TextareaInput.vue
+        │       ├── Checkbox.vue
+        │       └── InputError.vue
+        ├── Composables/
+        │   ├── useFilters.ts
+        │   ├── usePagination.ts
+        │   └── useToast.ts
+        └── Pages/
+            └── Dashboard.vue
+        ```
+
+        ### 4. Layouts
+        - **AppLayout.vue**: Sidebar + header + contenido. Para usuarios autenticados.
+        - **GuestLayout.vue**: Layout limpio para login/registro/páginas públicas.
+        - **BackofficeLayout.vue**: Extiende AppLayout con navegación de admin.
+
+        ### 5. Componentes UI base
+        - **Button.vue**: Variantes (primary, secondary, danger), estados (loading, disabled)
+        - **DataTable.vue**: Tabla con slots para headers y rows, soporte de sorting
+        - **Pagination.vue**: Paginación usando `Link` de Inertia
+        - **Modal.vue**: Modal con Headless UI `Dialog`
+        - **ConfirmDialog.vue**: Diálogo de confirmación para acciones destructivas
+        - **Badge.vue**: Para estados (colores por status)
+        - **Alert.vue**: Flash messages (success, error, warning)
+
+        ### 6. Form Components
+        - **TextInput.vue**: Input con label, error, placeholder
+        - **SelectInput.vue**: Select con opciones tipadas
+        - **TextareaInput.vue**: Textarea con contador de caracteres
+        - **InputError.vue**: Muestra error de validación de Inertia
+
+        ### 7. Composables
+        - **useFilters.ts**: Watch de filtros → `router.get()` con `preserveState`
+        - **usePagination.ts**: Helpers para paginación de Inertia
+        - **useToast.ts**: Sistema de notificaciones tipo toast
+
+        ### 8. Verificación
+        - `npm run build` sin errores
+        - `npm run dev` sirve correctamente
+        - Dashboard.vue renderiza con AppLayout
+
+        ### 9. HandleInertiaRequests Middleware
+        - Verificar que el middleware comparte datos globales: `auth.user`, `flash`
+        - Registrar en `bootstrap/app.php`
+
+        ## Checklist
+        - [ ] `npm run build` sin errores de TypeScript
+        - [ ] Layouts renderizan correctamente
+        - [ ] Componentes UI base creados
+        - [ ] Composables tipados
+        - [ ] vendor/bin/pint (backend changes only)

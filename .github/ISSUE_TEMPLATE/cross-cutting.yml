@@ -1,0 +1,83 @@
+name: "🔧 Funcionalidad Transversal"
+description: "Auth, middleware, integraciones, scheduler u otras tareas cross-cutting"
+title: "{descripción}"
+labels: ["agent:module-builder", "copilot-queued"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Instrucciones para Copilot
+        - Rama base: `dev`
+        - Agente: `module-builder`
+        - NO modificar capas Domain existentes salvo que se indique
+        - Seguir `.github/AGENT_GUIDELINES.md`
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Descripción"
+      description: "Qué funcionalidad transversal necesitas implementar"
+      placeholder: |
+        Configurar Laravel Passport para autenticación API.
+        Crear endpoints login/register/logout.
+        Proteger endpoints de Cart y Billing con middleware auth:api.
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: "Requisitos técnicos"
+      description: "Especificaciones detalladas de la implementación"
+      placeholder: |
+        1. POST /api/identity/auth/login → email + password → token
+        2. POST /api/identity/auth/register → crear user + token
+        3. Middleware auth:api en endpoints de Cart y Billing
+        4. GET de Catalog es público
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-modules
+    attributes:
+      label: "Módulos afectados"
+      description: "Qué módulos existentes se ven impactados y cómo"
+      placeholder: |
+        - Identity/User: añadir endpoints de auth en Infrastructure
+        - Cart/Cart: proteger todos los endpoints
+        - Billing/Order: proteger todos los endpoints
+        - Catalog/Product: proteger solo POST/PUT/DELETE
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: "Tests requeridos"
+      placeholder: |
+        - Integration: registro → login → obtener token
+        - Integration: acceso denegado sin token
+        - Integration: acceso permitido con token válido
+    validations:
+      required: true
+
+  - type: input
+    id: dependencies
+    attributes:
+      label: "Dependencias"
+      description: "Issues que deben cerrarse antes. Ej: #2, #3"
+      placeholder: "#2"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: "Fase"
+      options:
+        - "3 — Dependencias cruzadas"
+        - "4 — Integración"
+        - "5 — Refinamiento"
+    validations:
+      required: true
